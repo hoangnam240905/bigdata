@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+data/raw/*
+data/processed/*
+results/tables/*
+results/charts/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!results/tables/.gitkeep
+!results/charts/.gitkeep
+data/benchmark/

@@ -1,0 +1,30 @@
+# Cụm HDFS tối thiểu (1 namenode + 1 datanode) dùng image chính thức apache/hadoop.
+# Chạy:   docker compose -f docker/docker-compose.yml up -d
+# Web UI: http://localhost:9870  (xem file, block, datanode)
+# Lưu ý:  WebHDFS chuyển hướng tải dữ liệu sang "datanode:9864", nên máy Windows cần dòng
+#         "127.0.0.1 datanode" trong C:\Windows\System32\drivers\etc\hosts (xem README).
+# Dữ liệu HDFS nằm trong container: "docker compose down" sẽ xóa, cần put lại.
+services:
+  namenode:
+    image: apache/hadoop:3.3.6
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - "9870:9870"   # Web UI + WebHDFS
+      - "8020:8020"   # RPC
+    env_file:
+      - ./hadoop.env
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+
+  datanode:
+    image: apache/hadoop:3.3.6
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    ports:
+      - "9864:9864"   # WebHDFS data transfer
+      - "9866:9866"
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - namenode

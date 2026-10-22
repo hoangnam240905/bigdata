@@ -1,0 +1,9 @@
+apache-beam
+pandas
+numpy
+scikit-learn
+matplotlib
+pyarrow
+psutil
+streamlit
+hdfs
