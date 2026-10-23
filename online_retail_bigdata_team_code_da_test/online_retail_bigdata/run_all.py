@@ -24,6 +24,18 @@ HDFS_PROCESSED = "/retail/processed"
 CLEAN_FILE = "beam_clean_transactions-00000-of-00001.csv"
 
 
+def check_environment():
+    """Dừng sớm nếu Python đang dùng thiếu thư viện (thường do chưa chọn môi trường bigdata)."""
+    import importlib.util
+    missing = [m for m in ("apache_beam", "pandas", "sklearn", "matplotlib", "pyarrow")
+               if importlib.util.find_spec(m) is None]
+    if missing:
+        raise SystemExit(
+            f"Python đang dùng ({sys.executable}) thiếu thư viện: {', '.join(missing)}.\n"
+            "Hãy chạy bằng môi trường bigdata: conda activate bigdata rồi python run_all.py,\n"
+            "hoặc trong Spyder chọn Tools > Preferences > Python interpreter > môi trường bigdata.")
+
+
 def run(title, module, *args):
     print(f"\n=== {title} ===", flush=True)
     start = time.perf_counter()
@@ -37,6 +49,7 @@ def main():
     parser.add_argument("--hdfs", action="store_true", help="Lưu trữ dữ liệu trên HDFS")
     parser.add_argument("--skip-benchmark", action="store_true")
     args = parser.parse_args()
+    check_environment()
 
     beam_args = []
     if args.workers > 1:
