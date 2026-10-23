@@ -1,7 +1,4 @@
-"""Dashboard kết quả: chỉ hiển thị số liệu và biểu đồ đọc từ output của run_all.py.
-
-Chạy bằng `streamlit run app_results.py` từ thư mục gốc dự án.
-"""
+"""Dashboard kết quả (đọc output của run_all.py). Chạy: streamlit run app_results.py"""
 import sys
 from pathlib import Path
 

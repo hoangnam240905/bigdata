@@ -24,8 +24,7 @@ COLUMN_ALIASES = {
     "country": "Country",
 }
 
-# Bộ dữ liệu gốc không có cột danh mục: suy ra danh mục từ từ khóa trong Description.
-# Quy tắc được xét theo thứ tự, quy tắc khớp đầu tiên thắng.
+# Suy ra danh mục từ từ khóa trong Description (khớp quy tắc đầu tiên)
 CATEGORY_RULES = [
     ("Giáng sinh & lễ hội", r"CHRISTMAS|XMAS|EASTER|ADVENT|SANTA|REINDEER"),
     ("Đèn - nến - đèn lồng", r"T-LIGHT|CANDLE|LANTERN|LIGHT|LAMP"),
@@ -52,19 +51,19 @@ def categorize(description):
 
 
 def to_csv_line(values):
-    """Ghi một dòng CSV có quote đúng chuẩn (dùng trong Beam trước WriteToText)."""
+    """Chuyển danh sách giá trị thành một dòng CSV."""
     buffer = io.StringIO()
     csv.writer(buffer, quoting=csv.QUOTE_MINIMAL, lineterminator="").writerow(values)
     return buffer.getvalue()
 
 
 def is_remote(path):
-    """Đường dẫn dạng hdfs://, gs://, s3://... do Beam FileSystems xử lý."""
+    """Đường dẫn hdfs://, gs://, s3://..."""
     return "://" in str(path)
 
 
 def resolve_path(path):
-    """Trả về chuỗi đường dẫn: giữ nguyên nếu là hdfs://..., còn lại tính theo thư mục gốc dự án."""
+    """Giữ nguyên hdfs://...; đường dẫn local tính từ thư mục gốc dự án."""
     if is_remote(path):
         return str(path)
     path = Path(path)
@@ -87,16 +86,10 @@ def find_beam_output(prefix, directory=PROCESSED_DIR):
 
 
 def make_pipeline_options(beam_args):
-    """Mặc định chạy DirectRunner; có thể đổi bằng tham số, ví dụ:
-    --direct_num_workers=4 --direct_running_mode=multi_processing  (song song nhiều tiến trình)
-    --runner=FlinkRunner --flink_master=localhost:8081             (cụm Flink)
-    --hdfs_host=localhost --hdfs_port=9870 --hdfs_user=root          (đọc/ghi hdfs://)
-    """
+    """Tạo cấu hình Beam, mặc định DirectRunner."""
     from apache_beam.options.pipeline_options import PipelineOptions
     if not any(arg.startswith("--runner") for arg in beam_args):
-        # Từ Beam 2.6x, DirectRunner tự chuyển sang PrismRunner và bỏ qua --direct_num_workers.
-        # Khi chỉ định số worker, dùng thẳng FnApiRunner (lõi của DirectRunner Python) để
-        # chế độ multi_processing thực sự chia việc cho nhiều tiến trình.
+        # DirectRunner bản mới chạy bằng Prism và bỏ qua số worker -> dùng FnApiRunner
         if any(arg.startswith("--direct_num_workers") for arg in beam_args):
             runner = "apache_beam.runners.portability.fn_api_runner.fn_runner.FnApiRunner"
         else:

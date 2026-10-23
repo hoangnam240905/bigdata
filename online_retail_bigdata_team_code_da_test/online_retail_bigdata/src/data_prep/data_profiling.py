@@ -2,16 +2,13 @@ import sys
 import argparse
 from pathlib import Path
 
-# Xác định thư mục gốc của project
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-# Thêm thư mục gốc vào đường dẫn tìm module
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.common import read_retail_csv, TABLES_DIR
 def main():
-    parser = argparse.ArgumentParser(description="Đạt: khảo sát dữ liệu Online Retail")
+    parser = argparse.ArgumentParser(description="Khảo sát dữ liệu Online Retail")
     parser.add_argument("--input", default=None)
     args, _ = parser.parse_known_args()
 

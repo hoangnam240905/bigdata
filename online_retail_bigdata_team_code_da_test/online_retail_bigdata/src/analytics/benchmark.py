@@ -1,11 +1,5 @@
-"""Toàn: đo thời gian làm sạch dữ liệu khi dữ liệu tăng dần.
-
-So sánh cùng một phép làm sạch (lọc hóa đơn hủy, SL/giá <= 0, thiếu khách hàng, tính doanh thu):
-  - pandas: một tiến trình, nạp toàn bộ file vào RAM
-  - Apache Beam DirectRunner với 1 worker
-  - Apache Beam DirectRunner với N worker (multi_processing, song song nhiều tiến trình)
-Dữ liệu lớn hơn được tạo bằng cách nhân bản file gốc (x5, x10...). Đây là dữ liệu tổng hợp
-để thử tải, không phải giao dịch kinh doanh thật.
+"""Đo thời gian làm sạch dữ liệu: pandas vs Beam 1 worker vs Beam N worker.
+Dữ liệu x5, x10... là bản nhân bản file gốc để thử tải, không phải giao dịch thật.
 """
 import os
 import sys
@@ -67,8 +61,8 @@ def run_pandas(path, outdir):
 
 
 def run_beam(path, outdir, workers):
-    cmd = [sys.executable, "-m", "src.nam_beam.pipeline_clean", "--input", str(path), "--output-dir", str(outdir)]
-    # Cả 2 cấu hình Beam đều chạy FnApiRunner (xem make_pipeline_options) để so sánh công bằng
+    cmd = [sys.executable, "-m", "src.beam_pipelines.pipeline_clean", "--input", str(path), "--output-dir", str(outdir)]
+    # Cả 2 cấu hình Beam cùng dùng FnApiRunner để so sánh công bằng
     cmd += [f"--direct_num_workers={workers}"]
     if workers > 1:
         cmd += ["--direct_running_mode=multi_processing"]
@@ -91,7 +85,7 @@ def plot(results):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Toàn: benchmark pandas vs Apache Beam")
+    parser = argparse.ArgumentParser(description="Benchmark pandas vs Apache Beam")
     parser.add_argument("--input", default=None)
     parser.add_argument("--scales", type=int, nargs="+", default=[1, 5, 10], help="Hệ số nhân bản dữ liệu")
     parser.add_argument("--workers", type=int, default=4, help="Số worker cho Beam multi_processing")

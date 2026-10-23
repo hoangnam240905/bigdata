@@ -30,7 +30,7 @@ def parse_row(line):
         yield ("product", stock.strip(), rev, q)
         yield ("country", country.strip() or "Unknown", rev, q)
         yield ("category", categorize(desc), rev, q)
-        # Khóa "thứ-giờ", ví dụ "0-10" = Thứ 2 lúc 10h (weekday: 0 = Thứ 2)
+        # Khóa "thứ-giờ": "0-10" = Thứ 2 lúc 10h
         yield ("weekday_hour", f"{dt.weekday()}-{dt.hour}", rev, q)
     except Exception:
         return
@@ -43,7 +43,7 @@ def sum_pairs(values):
     return (revenue, quantity)
 
 def main():
-    parser = argparse.ArgumentParser(description="Nam: Beam trend aggregations")
+    parser = argparse.ArgumentParser(description="Beam: tổng hợp xu hướng")
     parser.add_argument("--input", default=None)
     parser.add_argument("--output-dir", default=str(PROCESSED_DIR))
     args, beam_args = parser.parse_known_args()

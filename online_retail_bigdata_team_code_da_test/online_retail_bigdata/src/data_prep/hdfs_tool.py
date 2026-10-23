@@ -1,9 +1,9 @@
-"""Đạt: đưa dữ liệu lên HDFS và tải kết quả về, qua WebHDFS (cổng 9870 của namenode).
+"""Đưa dữ liệu lên / tải kết quả từ HDFS qua WebHDFS (cổng 9870).
 
 Ví dụ:
-    python -m src.dat_team.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
-    python -m src.dat_team.hdfs_tool ls /retail
-    python -m src.dat_team.hdfs_tool get /retail/processed data/processed
+    python -m src.data_prep.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
+    python -m src.data_prep.hdfs_tool ls /retail
+    python -m src.data_prep.hdfs_tool get /retail/processed data/processed
 """
 import sys
 import argparse
@@ -28,7 +28,7 @@ def get_client(url, user):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Đạt: thao tác HDFS qua WebHDFS")
+    parser = argparse.ArgumentParser(description="Thao tác HDFS qua WebHDFS")
     parser.add_argument("--url", default=DEFAULT_URL, help="Địa chỉ WebHDFS của namenode")
     parser.add_argument("--user", default=DEFAULT_USER)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -51,7 +51,7 @@ def main():
     elif args.command == "get":
         local = Path(resolve_path(args.local))
         local.mkdir(parents=True, exist_ok=True)
-        # Tải từng file trong thư mục HDFS vào thẳng thư mục local (không tạo thư mục con)
+        # Tải từng file vào thẳng thư mục local
         if client.status(args.hdfs_path)["type"] == "DIRECTORY":
             names = [n for n, s in client.list(args.hdfs_path, status=True) if s["type"] == "FILE"]
             sources = [args.hdfs_path.rstrip("/") + "/" + n for n in names]

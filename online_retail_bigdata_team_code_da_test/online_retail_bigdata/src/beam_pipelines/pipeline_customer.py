@@ -31,8 +31,7 @@ def parse_customer(line):
         return
 
 class CustomerCombineFn(beam.CombineFn):
-    """Tổng hợp RFM theo khách hàng. Dùng CombineFn thay vì GroupByKey để Beam
-    tổng hợp cục bộ trên từng worker trước khi trộn (combiner lifting), giảm dữ liệu shuffle."""
+    """Tổng hợp RFM theo khách hàng (gộp cục bộ trên từng worker rồi mới trộn)."""
 
     def create_accumulator(self):
         # (latest_datetime, invoice_set, quantity_sum, monetary_sum)
@@ -63,8 +62,8 @@ class CustomerCombineFn(beam.CombineFn):
         }
 
 def main():
-    parser = argparse.ArgumentParser(description="Nam: Beam aggregate by customer")
-    parser.add_argument("--input", default=None, help="Clean CSV from pipeline_clean (local hoặc hdfs://)")
+    parser = argparse.ArgumentParser(description="Beam: tổng hợp RFM theo khách hàng")
+    parser.add_argument("--input", default=None, help="File sạch từ pipeline_clean (local hoặc hdfs://)")
     parser.add_argument("--output-dir", default=str(PROCESSED_DIR))
     args, beam_args = parser.parse_known_args()
 

@@ -1,4 +1,4 @@
-"""Web trình chiếu đồ án: chạy bằng `streamlit run app.py` từ thư mục gốc dự án."""
+"""Web trình chiếu. Chạy: streamlit run app.py"""
 import sys
 from pathlib import Path
 
@@ -13,7 +13,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, WEEKDAYS
-from src.toan_analytics.customer_segmentation import ACTIONS, build_features, name_clusters
+from src.analytics.customer_segmentation import ACTIONS, build_features, name_clusters
 
 st.set_page_config(page_title="Online Retail Big Data", page_icon="🛒", layout="wide")
 
@@ -51,10 +51,8 @@ page = st.sidebar.radio("Nội dung", [
     "5. Xu hướng mua sắm",
     "6. Phân nhóm khách hàng (K-Means)",
     "7. Hiệu năng & khả năng mở rộng",
-    "8. Phân công nhóm",
-    "9. Kết luận & hướng phát triển",
+    "8. Kết luận & hướng phát triển",
 ])
-st.sidebar.caption("Nhóm: Đạt · Nam · Toàn")
 
 quality = read_table("data_quality_summary.csv")
 q = dict(zip(quality["metric"], quality["value"])) if quality is not None else {}
@@ -115,7 +113,7 @@ elif page.startswith("2"):
 ### Lưu trữ trên HDFS
 ```bash
 docker compose -f docker/docker-compose.yml up -d          # dựng namenode + datanode
-python -m src.dat_team.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
+python -m src.data_prep.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
 python run_all.py --hdfs --workers 4                        # Beam đọc/ghi hdfs://retail/...
 ```
 """)
@@ -192,9 +190,9 @@ ReadFromText->"FlatMap(parse_row)";
     st.markdown("""
 **Chọn cách chạy bằng tham số, không cần sửa code:**
 ```bash
-python -m src.nam_beam.pipeline_clean                                                   # 1 worker
-python -m src.nam_beam.pipeline_clean --direct_num_workers=4 --direct_running_mode=multi_processing
-python -m src.nam_beam.pipeline_clean --runner=FlinkRunner --flink_master=localhost:8081   # cụm Flink
+python -m src.beam_pipelines.pipeline_clean                                                   # 1 worker
+python -m src.beam_pipelines.pipeline_clean --direct_num_workers=4 --direct_running_mode=multi_processing
+python -m src.beam_pipelines.pipeline_clean --runner=FlinkRunner --flink_master=localhost:8081   # cụm Flink
 ```""")
 
 # ---------- 5. Xu hướng ----------
@@ -202,7 +200,7 @@ elif page.startswith("5"):
     st.title("Phân tích xu hướng mua sắm")
     monthly = read_table("monthly_trends.csv")
     if monthly is None:
-        missing("python -m src.toan_analytics.trend_visualization")
+        missing("python -m src.analytics.trend_visualization")
         st.stop()
     st.subheader("Doanh thu theo tháng")
     st.altair_chart(alt.Chart(monthly).mark_line(point=True).encode(
@@ -277,7 +275,7 @@ Tiền xử lý: `log1p` cho F, M (giảm lệch phải) → `StandardScaler` �
     loaded = load_rfm()
     scores = read_table("kmeans_k_selection.csv")
     if loaded is None or scores is None:
-        missing("python -m src.toan_analytics.customer_segmentation")
+        missing("python -m src.analytics.customer_segmentation")
         st.stop()
     rfm, X = loaded
     rfm = rfm.copy()
@@ -334,7 +332,7 @@ elif page.startswith("7"):
     st.title("Hiệu năng & khả năng mở rộng")
     bench = read_table("benchmark.csv")
     if bench is None or "method" not in bench.columns:
-        missing("python -m src.toan_analytics.benchmark")
+        missing("python -m src.analytics.benchmark")
     else:
         st.markdown("Cùng một phép làm sạch dữ liệu, đo thời gian khi dữ liệu tăng dần "
                     "(x5 = nhân bản file gốc 5 lần, **dữ liệu tổng hợp để thử tải**).")
@@ -365,34 +363,7 @@ khởi tạo worker và tuần tự hóa dữ liệu. Lợi thế của Beam là
 pandas phải nạp toàn bộ dữ liệu vào RAM của một máy; Beam xử lý theo từng phần tử và chia việc cho nhiều worker.
 """)
 
-# ---------- 8. Phân công ----------
-elif page.startswith("8"):
-    st.title("Phân công & phối hợp nhóm")
-    team = pd.DataFrame([
-        {"Thành viên": "Đạt", "Vai trò": "Kỹ sư dữ liệu",
-         "Công việc": "Thu thập dữ liệu, khảo sát, kiểm tra chất lượng & xuất Parquet, dựng HDFS và đưa dữ liệu lên HDFS",
-         "Mã nguồn": "src/dat_team/, docker/"},
-        {"Thành viên": "Nam", "Vai trò": "Kỹ sư xử lý (Apache Beam)",
-         "Công việc": "3 pipeline Beam: làm sạch, tổng hợp RFM theo khách hàng, tổng hợp 5 loại xu hướng",
-         "Mã nguồn": "src/nam_beam/"},
-        {"Thành viên": "Toàn", "Vai trò": "Phân tích & học máy",
-         "Công việc": "RFM + K-Means (chọn k, đặt tên cụm), trực quan hóa, benchmark, sơ đồ kiến trúc",
-         "Mã nguồn": "src/toan_analytics/"},
-        {"Thành viên": "Cả nhóm", "Vai trò": "Tích hợp & trình bày",
-         "Công việc": "Script chạy toàn bộ run_all.py, web trình chiếu, báo cáo",
-         "Mã nguồn": "run_all.py, app.py"},
-    ])
-    st.dataframe(team, use_container_width=True, hide_index=True)
-    st.subheader("Luồng phối hợp")
-    st.graphviz_chart("""digraph{rankdir=LR;node[shape=box,style="rounded,filled",fillcolor="#eef3fb"];
-"Đạt\\nDữ liệu thô + HDFS"->"Nam\\nBeam pipelines"->"Toàn\\nK-Means + trực quan"->"Cả nhóm\\nrun_all + báo cáo + web"}""")
-    st.markdown("""
-- Mỗi người phụ trách một package riêng và dùng chung `src/common.py` (đường dẫn, quy tắc danh mục, cấu hình Beam).
-- Đầu ra của người trước là đầu vào của người sau, qua `data/processed/` (hoặc `hdfs:///retail/processed`).
-- `python run_all.py` chạy lại toàn bộ quy trình theo đúng thứ tự, ghi rõ bước nào của ai.
-""")
-
-# ---------- 9. Kết luận ----------
+# ---------- 8. Kết luận ----------
 else:
     st.title("Kết luận & hướng phát triển")
     summary = read_table("cluster_summary.csv")

@@ -18,7 +18,7 @@ from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, find_beam_output
 
 K_RANGE = range(2, 9)
 
-# Gợi ý hành động marketing cho từng nhóm (tên nhóm do name_clusters đặt)
+# Gợi ý hành động marketing cho từng nhóm
 ACTIONS = {
     "Khách VIP": "Chương trình thành viên, ưu đãi riêng, chăm sóc 1-1, ưu tiên hàng mới.",
     "Khách đã rời bỏ": "Email win-back, mã giảm giá có hạn, khảo sát lý do ngừng mua.",
@@ -46,8 +46,7 @@ def evaluate_k(X):
 
 
 def name_clusters(summary):
-    """Đặt tên cụm theo trung bình RFM: chi nhiều nhất = VIP, lâu không mua nhất = rời bỏ,
-    các cụm còn lại xếp theo Frequency giảm dần."""
+    """Đặt tên cụm: chi nhiều nhất = VIP, lâu không mua nhất = rời bỏ, còn lại theo Frequency."""
     if len(summary) > 5:
         return {cid: f"Cụm {cid}" for cid in summary.index}
     names = {}
@@ -122,7 +121,7 @@ def plot_clusters(df, summary):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Toàn: RFM + K-Means")
+    parser = argparse.ArgumentParser(description="RFM + K-Means")
     parser.add_argument("--k", type=int, default=None, help="Số cụm; bỏ trống = tự chọn theo Silhouette")
     args, _ = parser.parse_known_args()
 

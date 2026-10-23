@@ -1,12 +1,12 @@
 # Online Retail Big Data — Apache Beam + Python
 
-Dự án mẫu cho nhóm 3 người: Đạt, Nam, Toàn. Chạy bằng Spyder hoặc terminal trên Windows.
+Chạy bằng Spyder hoặc terminal trên Windows.
 
 ## 1. Cấu trúc
 
-- `src/dat_team/` — Đạt: khảo sát dữ liệu, kiểm tra chất lượng, xuất Parquet, đưa dữ liệu lên HDFS (`hdfs_tool.py`).
-- `src/nam_beam/` — Nam: 3 pipeline Apache Beam làm sạch / tổng hợp RFM / tổng hợp xu hướng.
-- `src/toan_analytics/` — Toàn: RFM + K-Means, trực quan hóa, benchmark, sơ đồ kiến trúc.
+- `src/data_prep/` — khảo sát dữ liệu, kiểm tra chất lượng, xuất Parquet, đưa dữ liệu lên HDFS (`hdfs_tool.py`).
+- `src/beam_pipelines/` — 3 pipeline Apache Beam làm sạch / tổng hợp RFM / tổng hợp xu hướng.
+- `src/analytics/` — RFM + K-Means, trực quan hóa, benchmark, sơ đồ kiến trúc.
 - `src/common.py` — dùng chung: đường dẫn, quy tắc danh mục sản phẩm, cấu hình runner Beam.
 - `docker/` — cụm HDFS (1 namenode + 1 datanode).
 - `run_all.py` — chạy toàn bộ quy trình theo đúng thứ tự.
@@ -58,24 +58,24 @@ python run_all.py --workers 4
 Hoặc chạy từng bước:
 
 ```bash
-python -m src.dat_team.data_profiling
-python -m src.dat_team.data_quality
-python -m src.nam_beam.pipeline_clean
-python -m src.nam_beam.pipeline_customer
-python -m src.nam_beam.pipeline_trends
-python -m src.toan_analytics.customer_segmentation
-python -m src.toan_analytics.trend_visualization
-python -m src.toan_analytics.architecture_diagram
-python -m src.toan_analytics.benchmark --scales 1 5 10 --workers 4
+python -m src.data_prep.data_profiling
+python -m src.data_prep.data_quality
+python -m src.beam_pipelines.pipeline_clean
+python -m src.beam_pipelines.pipeline_customer
+python -m src.beam_pipelines.pipeline_trends
+python -m src.analytics.customer_segmentation
+python -m src.analytics.trend_visualization
+python -m src.analytics.architecture_diagram
+python -m src.analytics.benchmark --scales 1 5 10 --workers 4
 ```
 
 Nếu chạy trong Spyder, mở từng file và bấm Run. Các file tự tìm thư mục gốc dự án.
 
 Các pipeline Beam nhận thêm tham số runner, không cần sửa code:
 ```bash
-python -m src.nam_beam.pipeline_clean --direct_num_workers=4 --direct_running_mode=multi_processing
-python -m src.nam_beam.pipeline_clean --runner=FlinkRunner --flink_master=localhost:8081
-python -m src.toan_analytics.customer_segmentation --k 4      # ép số cụm, mặc định tự chọn theo Silhouette
+python -m src.beam_pipelines.pipeline_clean --direct_num_workers=4 --direct_running_mode=multi_processing
+python -m src.beam_pipelines.pipeline_clean --runner=FlinkRunner --flink_master=localhost:8081
+python -m src.analytics.customer_segmentation --k 4      # ép số cụm, mặc định tự chọn theo Silhouette
 ```
 
 ## 5. Lưu trữ trên HDFS (cần Docker Desktop)
@@ -99,9 +99,9 @@ python -m src.toan_analytics.customer_segmentation --k 4      # ép số cụm, 
 
 Thao tác tay với HDFS:
 ```bash
-python -m src.dat_team.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
-python -m src.dat_team.hdfs_tool ls /retail
-python -m src.dat_team.hdfs_tool get /retail/processed data/processed
+python -m src.data_prep.hdfs_tool put data/raw/customer.csv /retail/raw/customer.csv
+python -m src.data_prep.hdfs_tool ls /retail
+python -m src.data_prep.hdfs_tool get /retail/processed data/processed
 ```
 
 ## 6. Web trình chiếu
@@ -112,7 +112,7 @@ Sau khi chạy xong mục 4, mở web trình bày kết quả:
 streamlit run app.py
 ```
 
-Trình duyệt tự mở tại http://localhost:8501. Web gồm 9 trang: giới thiệu, kiến trúc, dữ liệu, pipeline Beam, xu hướng, K-Means, hiệu năng, phân công, kết luận.
+Trình duyệt tự mở tại http://localhost:8501. Web gồm 8 trang: giới thiệu, kiến trúc, dữ liệu, pipeline Beam, xu hướng, K-Means, hiệu năng, kết luận.
 
 ## 7. Đầu ra chính
 

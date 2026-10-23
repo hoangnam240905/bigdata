@@ -10,7 +10,7 @@ import pandas as pd
 from src.common import read_retail_csv, TABLES_DIR, PROCESSED_DIR
 
 def main():
-    parser = argparse.ArgumentParser(description="Đạt: kiểm tra chất lượng và xuất Parquet")
+    parser = argparse.ArgumentParser(description="Kiểm tra chất lượng và xuất Parquet")
     parser.add_argument("--input", default=None)
     args, _ = parser.parse_known_args()
 
@@ -33,9 +33,7 @@ def main():
     negative_quantity = int((df["Quantity"] < 0).sum())
     cancelled = int(df["is_cancelled_invoice"].sum())
 
-    # Không xóa dòng chỉ vì trùng nếu chưa kiểm tra nghiệp vụ; báo cáo số dòng trùng.
-    # Tập phân tích bán hàng: bỏ hóa đơn hủy, số lượng <= 0, giá <= 0,
-    # thiếu khách hàng hoặc ngày/giá/số lượng không hợp lệ.
+    # Bỏ hóa đơn hủy, SL/giá <= 0, thiếu khách, ngày/số lỗi (dòng trùng chỉ báo cáo)
     valid = df[
         df["InvoiceDate"].notna()
         & df["Quantity"].notna()

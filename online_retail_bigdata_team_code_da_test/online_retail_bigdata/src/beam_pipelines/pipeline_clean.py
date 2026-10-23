@@ -3,7 +3,7 @@ import argparse
 import csv
 from pathlib import Path
 
-# Cho phép bấm Run trực tiếp trong Spyder (thêm thư mục gốc dự án vào sys.path)
+# Cho phép chạy trực tiếp trong Spyder
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -20,7 +20,7 @@ def parse_and_clean(line):
         row = next(csv.reader([line]))
         if len(row) < 8:
             return
-        # Header is skipped separately. Expected order from standard Online Retail.
+        # Thứ tự cột theo bộ Online Retail gốc
         invoice, stock, description, quantity, invoice_date, unit_price, customer_id, country = row[:8]
         invoice = invoice.strip()
         if invoice.lower() == "invoiceno":
@@ -37,7 +37,7 @@ def parse_and_clean(line):
             return
         if not customer_id or customer_id.strip() == "" or customer_id_float <= 0:
             return
-        # ISO-like string is retained; pandas will parse it downstream.
+        # Giữ nguyên chuỗi ngày, bước sau mới parse
         date = invoice_date.strip()
         if not date:
             return
@@ -57,7 +57,7 @@ def parse_and_clean(line):
         return
 
 def main():
-    parser = argparse.ArgumentParser(description="Nam: Apache Beam clean pipeline")
+    parser = argparse.ArgumentParser(description="Beam: làm sạch dữ liệu")
     parser.add_argument("--input", default=None, help="File CSV local hoặc hdfs://...")
     parser.add_argument("--output-dir", default=str(PROCESSED_DIR), help="Thư mục local hoặc hdfs://...")
     known, beam_args = parser.parse_known_args()
