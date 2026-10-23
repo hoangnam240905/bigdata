@@ -91,8 +91,35 @@ def run_as_streamlit(script):
     from streamlit import runtime
     if runtime.exists():
         return
+    import socket
     import subprocess
-    proc = subprocess.Popen([sys.executable, "-m", "streamlit", "run", str(script)], cwd=ROOT)
+    import time
+    import webbrowser
+
+    def port_open(port):
+        with socket.socket() as s:
+            return s.connect_ex(("localhost", port)) == 0
+
+    port = 8501
+    while port_open(port):  # cổng bận -> thử cổng kế tiếp
+        port += 1
+    # headless: bỏ câu hỏi email lần chạy đầu (bị treo khi chạy từ Spyder); trình duyệt mở bên dưới
+    proc = subprocess.Popen([sys.executable, "-m", "streamlit", "run", str(script),
+                             "--server.headless=true", f"--server.port={port}",
+                             "--browser.gatherUsageStats=false"], cwd=ROOT)
+    url = f"http://localhost:{port}"
+    for _ in range(120):
+        if proc.poll() is not None:
+            break
+        if port_open(port):
+            webbrowser.open(url)
+            msg = f"Web đang chạy tại {url} (bấm nút dừng trên console để tắt)"
+            try:
+                print(msg, flush=True)
+            except UnicodeEncodeError:  # console không hỗ trợ tiếng Việt
+                print(f"Web: {url}", flush=True)
+            break
+        time.sleep(0.5)
     try:
         proc.wait()
     except KeyboardInterrupt:
