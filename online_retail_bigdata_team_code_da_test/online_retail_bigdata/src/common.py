@@ -1,6 +1,7 @@
 from pathlib import Path
 import csv
 import io
+import sys
 import pandas as pd
 import re
 
@@ -83,6 +84,20 @@ def find_beam_output(prefix, directory=PROCESSED_DIR):
     if not files:
         raise FileNotFoundError(f"Không tìm thấy {prefix}*.csv trong {directory}. Hãy chạy pipeline Beam tương ứng.")
     return files[0]
+
+
+def run_as_streamlit(script):
+    """Bấm Run (F5) trong Spyder thì tự mở web bằng `streamlit run`."""
+    from streamlit import runtime
+    if runtime.exists():
+        return
+    import subprocess
+    proc = subprocess.Popen([sys.executable, "-m", "streamlit", "run", str(script)], cwd=ROOT)
+    try:
+        proc.wait()
+    except KeyboardInterrupt:
+        proc.terminate()
+    raise SystemExit
 
 
 def make_pipeline_options(beam_args):

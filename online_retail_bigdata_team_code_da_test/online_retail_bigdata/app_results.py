@@ -1,4 +1,4 @@
-"""Dashboard kết quả (đọc output của run_all.py). Chạy: streamlit run app_results.py"""
+"""Dashboard kết quả (đọc output của run_all.py). Chạy: streamlit run app_results.py hoặc F5 trong Spyder"""
 import sys
 from pathlib import Path
 
@@ -9,8 +9,9 @@ if str(ROOT) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, WEEKDAYS
+from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, WEEKDAYS, run_as_streamlit
 
+run_as_streamlit(__file__)
 st.set_page_config(page_title="Kết quả Online Retail", page_icon="📊", layout="wide")
 
 NO_RESULT = "Chưa có kết quả, hãy chạy `python run_all.py`."

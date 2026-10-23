@@ -1,4 +1,4 @@
-"""Web trình chiếu. Chạy: streamlit run app.py"""
+"""Web trình chiếu. Chạy: streamlit run app.py hoặc F5 trong Spyder"""
 import sys
 from pathlib import Path
 
@@ -12,9 +12,10 @@ import streamlit as st
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, WEEKDAYS
+from src.common import PROCESSED_DIR, TABLES_DIR, CHARTS_DIR, WEEKDAYS, run_as_streamlit
 from src.analytics.customer_segmentation import ACTIONS, build_features, name_clusters
 
+run_as_streamlit(__file__)
 st.set_page_config(page_title="Online Retail Big Data", page_icon="🛒", layout="wide")
 
 
