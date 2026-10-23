@@ -10,7 +10,7 @@ Chạy bằng Spyder hoặc terminal trên Windows.
 - `src/common.py` — dùng chung: đường dẫn, quy tắc danh mục sản phẩm, cấu hình runner Beam.
 - `docker/` — cụm HDFS (1 namenode + 1 datanode).
 - `run_all.py` — chạy toàn bộ quy trình theo đúng thứ tự.
-- `app.py` — web trình chiếu kết quả.
+- `app_results.py` — web hiển thị kết quả và số liệu.
 - `data/raw/` — đặt CSV tải từ Kaggle vào đây.
 - `data/processed/` — dữ liệu đã xử lý.
 - `results/` — bảng kết quả và biểu đồ.
@@ -104,15 +104,15 @@ python -m src.data_prep.hdfs_tool ls /retail
 python -m src.data_prep.hdfs_tool get /retail/processed data/processed
 ```
 
-## 6. Web trình chiếu
+## 6. Web kết quả
 
-Sau khi chạy xong mục 4, mở web trình bày kết quả:
+Sau khi chạy xong mục 4, mở `app_results.py` trong Spyder và bấm F5, hoặc chạy:
 
 ```bash
-streamlit run app.py
+streamlit run app_results.py
 ```
 
-Trình duyệt tự mở tại http://localhost:8501. Web gồm 8 trang: giới thiệu, kiến trúc, dữ liệu, pipeline Beam, xu hướng, K-Means, hiệu năng, kết luận.
+Trình duyệt tự mở tại http://localhost:8501. Web gồm 5 tab: tổng quan số liệu, chất lượng dữ liệu & Beam, phân nhóm khách hàng, xu hướng mua sắm, hiệu năng.
 
 ## 7. Đầu ra chính
 

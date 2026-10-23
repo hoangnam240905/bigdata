@@ -82,7 +82,7 @@ def main():
     if not args.skip_benchmark:
         run("Benchmark pandas vs Beam", "src.analytics.benchmark", "--workers", str(max(args.workers, 4)))
 
-    print("\nHoàn tất. Mở web trình chiếu: streamlit run app.py")
+    print("\nHoàn tất. Mở web kết quả: streamlit run app_results.py (hoặc F5 trong Spyder)")
 
 
 if __name__ == "__main__":
