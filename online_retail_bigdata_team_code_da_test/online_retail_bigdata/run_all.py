@@ -14,6 +14,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+# In UTF-8 kể cả khi ghi log ra file (> log.txt), tránh lỗi tiếng Việt trên Windows
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
 from src.common import find_input_file
 
 # Tiến trình con in UTF-8 (tránh lỗi tiếng Việt trên Windows)

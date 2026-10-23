@@ -131,9 +131,9 @@ def make_pipeline_options(beam_args):
     """Tạo cấu hình Beam, mặc định DirectRunner."""
     from apache_beam.options.pipeline_options import PipelineOptions
     if not any(arg.startswith("--runner") for arg in beam_args):
-        # DirectRunner bản mới chạy bằng Prism và bỏ qua số worker -> dùng FnApiRunner
+        # DirectRunner bản mới chạy bằng Prism và bỏ qua số worker -> dùng FnApiRunner có gửi options cho worker
         if any(arg.startswith("--direct_num_workers") for arg in beam_args):
-            runner = "apache_beam.runners.portability.fn_api_runner.fn_runner.FnApiRunner"
+            runner = "src.beam_pipelines.runner.MultiWorkerRunner"
         else:
             runner = "DirectRunner"
         beam_args = [f"--runner={runner}", *beam_args]
